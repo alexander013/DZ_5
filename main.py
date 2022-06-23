@@ -1,72 +1,124 @@
-import os
-import platform
-import shutil
-import sys
-from viictory import victorina
-from use_functions import accaunt
-from directory import new_directory
+"""
+Модуль для запуска консольного файлового менеджера
+"""
+
+# Функции файлового менеджера
+import filemanager
+# Мой счет
+from bill import run_bill
+# Викторина
+from victory import run_victory
+
+# Названия пунктов меню
+COPY_FILE_FOLDER = 'Копировать (файл/папку)'
+SHOW_FILES = 'Посмотреть только файлы'
+AUTHOR = 'Создатель программы'
+VICTORY = 'Играть в викторину'
+BILL = 'Мой банковский счет'
+EXIT = 'Выход'
+
+# Набор пунктов меню
+menu_items = (
+    COPY_FILE_FOLDER,
+    SHOW_FILES,
+    AUTHOR,
+    VICTORY,
+    BILL,
+    EXIT
+)
 
 
+def separator(count=30):
+    """
+    Функция разделитель
+    :param count: количество звездочек
+    :return: красивый разделитель
+    """
+    return '*' * count
 
-while True:
-    print('1. создать папку')
-    print('2. удалить(файл/папку)')
-    print('3. копировать (файл/папку)')
-    print('4. просмотр содержимого рабочей директории')
-    print('5. посмотреть только папки')
-    print('6. посмотреть только файлы')
-    print('7. просмотр информации об операционной системе')
-    print('8. создатель программы')
-    print('9. играть в вмкторину')
-    print('10. мой банковский счет')
-    print('11. смена рабочей директории')
-    print('12. выход')
 
-    path = os.getcwd()
-    choice = input('Выберите пункт меню: ')
-    if choice == '1':
-        folder_name = input('Введите название папки: ')
-        os.mkdir(f'{folder_name}')
-        print('Создана папка: ', folder_name)
-    elif choice == '2':
-        folder_delete = input('Введите название папки, которую хотите удалить: ')
-        if os.path.exists(f'{folder_delete}'):
-            os.rmdir(f'{folder_delete}')
-            print('Удалена папка: ', folder_delete)
+def copy_file_or_folder():
+    """
+    Копирование файла или папки
+    :return:
+    """
+    # спрашиваем имя и новое имя
+    name = input('Введите имя файла')
+    new_name = input('Введите имя копиии')
+    # копируем
+    filemanager.copy_file_or_directory(name, new_name)
+
+
+def print_author():
+    """
+    Функция печати информации об авторе
+    :return:
+    """
+    # получаем информацию
+    author = filemanager.author_info()
+    # печатаем
+    print(author)
+
+
+def print_files():
+    """
+    Функция печати файлов в рабочей папке
+    :return: None
+    """
+    # Получаем файлы
+    files = filemanager.filenames()
+    # Выводим
+    for item in files:
+        print(item)
+
+
+# Словарь действия связывает название пункта меню с той функцией которую нужно выполнить
+actions = {
+    COPY_FILE_FOLDER: copy_file_or_folder,
+    SHOW_FILES: print_files,
+    AUTHOR: print_author,
+    VICTORY: run_victory,
+    BILL: run_bill,
+    EXIT: filemanager.quit
+}
+
+
+def print_menu():
+    """
+    Функция вывода меню
+    :return: None
+    """
+    print(separator())
+    # Выводим названи пункта меню и цифру начиная с 1
+    for number, item in enumerate(menu_items, 1):
+        print(f'{number}) {item}')
+    print(separator())
+
+
+def is_correct_choice(choice):
+    """
+    Функция проверяет что выбран корректный пункт меню
+    :param choice: выбор
+    :return: True/False
+    """
+    return choice.isdigit() and int(choice) > 0 and int(choice) <= len(menu_items)
+
+
+if __name__ == '__main__':
+    # цикл основной программы
+    while True:
+        # рисуем меню
+        print_menu()
+        # пользователь выбирает цифру
+        choice = input('Выберите пункт меню ')
+        # проверяем что это корректный выбор
+        if is_correct_choice(choice):
+            # получаем назвнание пункта меню по номеру
+            # choice - 1, т.к. в меню пункты выводятся с 1 а в картеже хранятся с 0
+            choice_name = menu_items[int(choice) - 1]
+            # получаем действие в зависимости от пунктам меню
+            action = actions[choice_name]
+            # вызываем функцию
+            action()
         else:
-            print('Такой папки не существует')
-    elif choice == '3':
-        name_folder_file = input('Введите название папки/файла: ')
-        name_folder_file_copy = input('Введите название копии папки/файла: ')
-        shutil.copytree(name_folder_file, name_folder_file_copy)
-    elif choice == '4':
-        print(os.listdir())
-    elif choice == '5':
-        name_list_isdir = []
-        # print([ name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))])
-        for name in os.listdir(path):
-            if os.path.isdir(os.path.join(path, name)):
-                name_list_isdir.append(name)
-        print(name_list_isdir)
-    elif choice == '6':
-        name_list_isfile = []
-        # print([ name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name)) ])
-        for name in os.listdir(path):
-            if os.path.isfile(os.path.join(path, name)):
-                name_list_isfile.append(name)
-        print(name_list_isfile)
-    elif choice == '7':
-        print(sys.platform)
-        print(platform.system())
-    elif choice == '8':
-        print('Создатель программы:  Курочкин Александр Васильевич')
-    elif choice == '9':
-        victorina()
-    elif choice == '10':
-        accaunt()
-    elif choice == '11':
-        new_directory()
-    elif choice == '12':
-        break
-    else:
-        print('Неверный пункт меню')
+            print('Неверный пункт меню')

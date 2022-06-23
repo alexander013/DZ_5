@@ -1,3 +1,4 @@
+import os
 import math
 #  1 filter()
 def filter_odd_num(in_num):
@@ -95,4 +96,9 @@ def number_sqrt(k):
     return print(math.sqrt(k))
 
 # 17 math.pow
-print(math.pow(2,8))
+def number_pow(x, y):
+    return print(math.pow(x, y))
+
+
+
+
